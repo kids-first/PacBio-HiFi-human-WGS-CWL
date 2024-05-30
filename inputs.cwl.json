@@ -1,0 +1,69 @@
+{
+  "sample_id": "test",
+  "reference_name": "GRCh38",
+  "reference_fasta": {
+    "class": "File",
+    "path": "/path/to/reference.fasta",
+    "secondaryFiles": [
+      {
+        "class": "File",
+        "path": "/path/to/reference.fasta.fai"
+      }
+    ]
+  },
+  "reference_tandem_repeat_bed": {
+    "class": "File",
+    "path": "/path/to/human_GRCh38_no_alt_analysis_set.trf.bed"
+  },
+  "trgt_tandem_repeat_bed": {
+    "class": "File",
+    "path": "/path/to/human_GRCh38_no_alt_analysis_set.trgt.v0.3.4.bed"
+  },
+  "pbsv_splits": {
+    "class": "File",
+    "path": "/path/to/human_GRCh38_no_alt_analysis_set.pbsv_splits.json"
+  },
+  "bam": [
+    {
+      "class": "File",
+      "path": "/path/to/input.bam",
+      "secondaryFiles": [
+        {
+          "class": "File",
+          "path": "/path/to/input.bam.bai"
+        }
+      ]
+    }
+  ],
+  "model_type": "PACBIO",
+  "deepvariant_output_vcf": "/output/path/deepvariant_output.vcf.gz",
+  "output_gvcf": "/output/path/output.g.vcf.gz",
+  "svsigs": [
+    {
+      "class": "File",
+      "path": "/path/to/svsig1"
+    },
+    {
+      "class": "File",
+      "path": "/path/to/svsig2"
+    }
+  ],
+  "exclude_bed": {
+    "class": "File",
+    "path": "/path/to/cnv.excluded_regions.common_50.hg38.bed.gz",
+    "secondaryFiles": [
+      {
+        "class": "File",
+        "path": "/path/to/cnv.excluded_regions.common_50.hg38.bed.gz.tbi"
+      }
+    ]
+  },
+  "expected_bed_male": {
+    "class": "File",
+    "path": "/path/to/expected_cn.hg38.XY.bed"
+  },
+  "expected_bed_female": {
+    "class": "File",
+    "path": "/path/to/expected_cn.hg38.XX.bed"
+  }
+}

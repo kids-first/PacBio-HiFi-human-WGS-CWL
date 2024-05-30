@@ -26,7 +26,7 @@ arguments:
 
       bcftools stats \
         --threads ${ return inputs.threads - 1 } \
-        $(inputs.stats_params) \
+        --apply-filters PASS --samples $(inputs.sample_id) \
         --fasta-ref $(inputs.reference) \
         $(inputs.vcf) \
       > $(inputs.vcf.nameroot).vcf.stats.txt
@@ -45,7 +45,7 @@ arguments:
 inputs:
   vcf: { type: 'File' }
   reference: { type: 'File' }
-  stats_params: { type: 'string?' }
+  sample_id: { type: 'string' }
   threads: { type: 'int?', default: 2, doc: "Number of threads to allocate to this task." }
   ram: { type: 'int?', default: 4, doc: "GB size of RAM to allocate to this task." }
 

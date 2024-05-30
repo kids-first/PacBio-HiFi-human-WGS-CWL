@@ -24,7 +24,7 @@ arguments:
         --threads $(inputs.threads) \
         --bam $(inputs.bam) \
         --ref $(inputs.reference) \
-        --output-prefix $(inputs.output_prefix) \
+        --output-prefix $(inputs.sample_id).$(inputs.reference_name) \
         --min-mapq 1 \
         --min-coverage 10 \
         --model "$PILEUP_MODEL_DIR"/pileup_calling_model.v1.tflite
@@ -32,7 +32,8 @@ arguments:
 inputs:
   bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: true}] }
   reference: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}] }
-  output_prefix: { type: 'string' }
+  sample_id: { type: 'string' }
+  reference_name: { type: 'string' }
   threads: { type: 'int?', default: 12, doc: "Number of threads to allocate to this task." }
 
 outputs:

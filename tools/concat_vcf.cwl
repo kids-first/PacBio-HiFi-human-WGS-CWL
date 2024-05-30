@@ -21,7 +21,7 @@ arguments:
       mkdir -p vcfs
 
       for input in $(inputs.vcfs); do
-        ln -s "$input" vcfs/$(basename "$input")
+        ln -s "$input" vcfs
       done 
 
       find vcfs -name "*.vcf.gz" > vcf.list
@@ -32,24 +32,15 @@ arguments:
         --allow-overlaps \
         --threads ${ return inputs.threads - 1 } \
         --output-type z \
-        --output $(inputs.output_vcf_name) \
+        --output $(inputs.sample_id).$(inputs.reference_name).pbsv.vcf.gz \
         --file-list vcf.list
 
-      bcftools index --tbi $(inputs.output_vcf_name)
+      bcftools index --tbi $(inputs.sample_id).$(inputs.reference_name).pbsv.vcf.gz
 
 inputs:
-  vcfs:
-    type: File[]
-    secondaryFiles: ['.tbi']
-    inputBinding:
-      prefix: ''
-      valueFrom: |
-        ${
-          return inputs.vcfs.map(vcf => {
-            return vcf.path;
-          }).join(" ");
-        }
-  output_vcf_name: { type: 'string' }
+  vcfs: { type: 'File[]', secondaryFiles: ['.tbi'] }
+  sample_id: { type: 'string' }
+  reference_name: { type: 'string' }
   threads: { type: 'int?', default: 4, doc: "Number of threads to allocate to this task." }
   ram: { type: 'int?', default: 8, doc: "GB size of RAM to allocate to this task." }
 

@@ -15,61 +15,22 @@ requirements:
       - entryname: "svsigs.list"
         entry: $(inputs.svsigs)
       - entry: $(inputs.reference)
+      - entryname: run_pbsv_call.sh
+        entry:
+          $include: ../scripts/run_pbsv_call.sh
   - class: DockerRequirement
     dockerPull: quay.io/pacbio/pbsv@sha256:d78ee6deb92949bdfde98d3e48dab1d871c177d48d8c87c73d12c45bdda43446
-baseCommand: ["/bin/bash", "-c"]
-arguments:
-  - position: 0
-    shellQuote: false
-    valueFrom: |
-      set -euo pipefail
-
-      if [ -n $(inputs.regions) ]; then
-        pattern=$(echo $(inputs.regions) \
-          | sed 's/^/^.\\t.\\t/; s/ /\\t\\|^.\\t.\\t/g; s/$/\\t/' \
-          | echo "^#|$(</dev/stdin)")
-
-        touch svsigs.fofn 
-        for svsig in $(cat svsigs.list); do
-          svsig_basename=$(basename "$svsig" .svsig.gz)
-          gunzip -c "$svsig" \
-            | grep -P "$pattern" \
-            | bgzip -c > "${svsig_basename}.regions.svsig.gz" \
-            && echo "${svsig_basename}.regions.svsig.gz" >> svsigs.fofn
-        done
-      else
-        cp $(inputs.svsigs) svsigs.fofn
-      fi
-
-      pbsv --version
-
-      pbsv call \
-        --hifi \
-        --min-sv-length 20 \
-        --log-level INFO \
-        --num-threads $(inputs.threads) \
-        $(inputs.reference) \
-        svsigs.fofn \
-        "$(inputs.sample_id).$(inputs.reference_name)$(inputs.shard_index).pbsv.vcf"
-
-      bgzip --version
-
-      bgzip "$(inputs.sample_id).$(inputs.reference_name)$(inputs.shard_index).pbsv.vcf"
-
-      tabix --version
-
-      tabix -p vcf "$(inputs.sample_id).$(inputs.reference_name)$(inputs.shard_index).pbsv.vcf.gz"
+baseCommand: [bash run_pbsv_call.sh]
 
 inputs:
-  sample_id: { type: 'string' }
-  svsigs: { type: 'File[]' }
-  sample_count: { type: 'int?' }
-  reference: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}] }
-  reference_name: { type: 'string' }
-  shard_index: { type: 'int?' }
-  regions: { type: 'string[]?' }
+  sample_id: { type: 'string', inputBinding: { position: 1 } }
+  svsigs: { type: 'File[]', inputBinding: { position: 2 } }
+  reference: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}], inputBinding: { position: 3 } }
+  reference_name: { type: 'string', inputBinding: { position: 4 } }
+  shard_index: { type: 'int?', inputBinding: { position: 5 } }
+  regions: { type: 'string?', inputBinding: { position: 6 } }
   
-  threads: { type: 'int?', default: 8, doc: "Number of threads to allocate to this task." }
+  threads: { type: 'int?', default: 8, doc: "Number of threads to allocate to this task.", inputBinding: { position: 7 } }
   ram: { type: 'int?', default: 64, doc: "Int mem_gb = if select_first([sample_count, 1]) > 3 then 96 else 64" }
 
 outputs:

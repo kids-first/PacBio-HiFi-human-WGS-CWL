@@ -23,18 +23,16 @@ arguments:
       paraphase \
         --threads $(inputs.threads) \
         --bam $(inputs.bam) \
-        --reference $(inputs.reference) \
-        --out $(inputs.out_directory)
+        --reference $(inputs.reference) 
 
 inputs:
   bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: true}] }
   reference: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}] }
   sample_id: { type: 'string' }
-  out_directory: { type: 'string' }
   threads: { type: 'int?', default: 4, doc: "Number of threads to allocate to this task." }
   ram: { type: 'int?', default: 4, doc: "GB size of RAM to allocate to this task." }
 
 outputs:
-  output_json: { type: 'File', outputBinding: { glob: '$(inputs.out_directory.path)/*.json' } }
-  realigned_bam: { type: 'File', outputBinding: { glob: '$(inputs.out_directory.path)/*.bam' }, secondaryFiles: ['.bai'] }
-  paraphase_vcfs: { type: 'File[]', outputBinding: { glob: '$(inputs.out_directory.path)/*.vcf' } }
+  output_json: { type: 'File', outputBinding: { glob: '*.json' } }
+  realigned_bam: { type: 'File', outputBinding: { glob: '*.bam' }, secondaryFiles: ['.bai'] }
+  paraphase_vcfs: { type: 'File[]', outputBinding: { glob: '*.vcf' } }

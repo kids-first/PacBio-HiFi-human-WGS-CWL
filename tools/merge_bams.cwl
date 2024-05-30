@@ -22,14 +22,15 @@ arguments:
 
       samtools merge \
         -@ ${ return inputs.threads - 1 } \
-        -o $(inputs.output_bam_name) \
+        -o $(inputs.sample_id).$(inputs.reference_name).merged.haplotagged.bam \
         $(inputs.bams_to_merge)
 
       samtools index $(inputs.output_bam_name)
 
 inputs:
   bams_to_merge: { type: 'File[]' }
-  output_bam_name: { type: 'string' }
+  sample_name: { type: 'string' }
+  reference_name: { type: 'string' }
   threads: { type: 'int?', default: 8, doc: "Number of threads to allocate to this task." }
   ram: { type: 'int?', default: 4, doc: "GB size of RAM to allocate to this task." }
 

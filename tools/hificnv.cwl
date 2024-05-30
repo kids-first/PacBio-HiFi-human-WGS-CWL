@@ -55,7 +55,7 @@ inputs:
   exclude_bed: { type: 'File', secondaryFiles: [{pattern: ".tbi", required: true}], doc: "basename(bed, '.bed.gz') + '.bed.gz.tbi'" }
   expected_bed_male: { type: 'File' }
   expected_bed_female: { type: 'File' }
-  output_prefix: { type: 'string' }
+  output_prefix: { type: 'string?', default: "hificnv" }
   threads: { type: 'int?', default: 8, doc: "Number of threads to allocate to this task." }
 
 outputs:
