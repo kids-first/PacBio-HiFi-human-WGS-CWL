@@ -20,8 +20,8 @@ arguments:
       
       # Get coverage dropouts
       check_trgt_coverage.py \
-        $(inputs.tandem_repeat_bed) \
-        $(inputs.bam) \
+        $(inputs.tandem_repeat_bed.path) \
+        $(inputs.bam.path) \
       > $(inputs.sample_id).$(inputs.reference_name).trgt.dropouts.txt
 
 inputs:

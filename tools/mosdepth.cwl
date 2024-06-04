@@ -28,7 +28,7 @@ arguments:
         --no-per-base \
         --use-median \
         $(inputs.aligned_bam.nameroot) \
-        $(inputs.aligned_bam)
+        $(inputs.aligned_bam.path)
 
 inputs:
   aligned_bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: true}] }

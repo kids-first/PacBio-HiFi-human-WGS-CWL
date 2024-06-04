@@ -22,8 +22,8 @@ arguments:
 
       aligned_bam_to_cpg_scores \
         --threads $(inputs.threads) \
-        --bam $(inputs.bam) \
-        --ref $(inputs.reference) \
+        --bam $(inputs.bam.path) \
+        --ref $(inputs.reference.path) \
         --output-prefix $(inputs.sample_id).$(inputs.reference_name) \
         --min-mapq 1 \
         --min-coverage 10 \

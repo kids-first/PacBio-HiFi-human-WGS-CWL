@@ -26,8 +26,8 @@ arguments:
       pbsv discover \
         --log-level INFO \
         --hifi \
-        --tandem-repeats $(inputs.reference_tandem_repeat_bed) \
-        $(inputs.aligned_bam) \
+        --tandem-repeats $(inputs.reference_tandem_repeat_bed.path) \
+        $(inputs.aligned_bam.path) \
         $(inputs.aligned_bam.nameroot).svsig.gz
 
 inputs:

@@ -19,10 +19,6 @@
     "class": "File",
     "path": "/path/to/human_GRCh38_no_alt_analysis_set.trgt.v0.3.4.bed"
   },
-  "pbsv_splits": {
-    "class": "File",
-    "path": "/path/to/human_GRCh38_no_alt_analysis_set.pbsv_splits.json"
-  },
   "bam": [
     {
       "class": "File",
@@ -36,18 +32,10 @@
     }
   ],
   "model_type": "PACBIO",
-  "deepvariant_output_vcf": "/output/path/deepvariant_output.vcf.gz",
-  "output_gvcf": "/output/path/output.g.vcf.gz",
-  "svsigs": [
-    {
-      "class": "File",
-      "path": "/path/to/svsig1"
-    },
-    {
-      "class": "File",
-      "path": "/path/to/svsig2"
-    }
-  ],
+  "pbsv_svsigs": {
+    "class": "File",
+    "path": "/path/to/pbsv_svsigs"
+  },
   "exclude_bed": {
     "class": "File",
     "path": "/path/to/cnv.excluded_regions.common_50.hg38.bed.gz",

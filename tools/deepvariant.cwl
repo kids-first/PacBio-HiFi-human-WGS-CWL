@@ -26,7 +26,7 @@ arguments:
 
 inputs:
   # Required arguments
-  reads: { type: 'File[]', inputBinding: { prefix: "--reads", position: 40 }, doc: "Aligned, sorted, indexed BAM file containing the reads we want to call. Should be aligned to a reference genome compatible with --ref." }
+  reads: { type: 'File', inputBinding: { prefix: "--reads", position: 40 }, doc: "Aligned, sorted, indexed BAM file containing the reads we want to call. Should be aligned to a reference genome compatible with --ref." }
   ref: { type: 'File', inputBinding: { prefix: "--ref", position: 50 }, doc: "Genome reference to use. Must have an associated FAI index as well. Supports text or gzipped references. Should match the reference used to align the BAM file provided to --reads." }
   sample_name: { type: 'string', inputBinding: { prefix: "--sample_name", position: 60 }, doc: "This flag is used for both make_examples and postprocess_variants." }
   model_type:
@@ -42,8 +42,8 @@ inputs:
       associated with each type, and it will set necessary flags corresponding to
       each model. If you want to use a customized model, add --customized_model
       flag in addition to this flag.
-  output_vcf: { type: 'string', inputBinding: { prefix: "--output_vcf", position: 80 } }
-  output_gvcf: { type: 'string', inputBinding: { prefix: "--output_gvcf", position: 90 } }
+  output_vcf: { type: 'string?', default: "deepvariant_output.vcf.gz", inputBinding: { prefix: "--output_vcf", position: 80 } }
+  output_gvcf: { type: 'string?', default: "deepvariant_output.gvcf.gz", inputBinding: { prefix: "--output_gvcf", position: 90 } }
 
 # Optional arguments
   call_variants_extra_args: { type: 'File?', inputBinding: { prefix: "--call_variants_extra_args", position: 1 }, doc: "A comma-separated list of flag_name=flag_value. 'flag_name' has to be valid flags for call_variants.py. If the flag_value is boolean, it has to be flag_name=true or flag_name=false." }

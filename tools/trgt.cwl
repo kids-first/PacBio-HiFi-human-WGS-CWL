@@ -27,9 +27,9 @@ arguments:
       trgt \
         --threads $(inputs.threads) \
         --karyotype $(inputs.sex ? (inputs.sex == "MALE" ? "XY" : "XX") : "XX") \
-        --genome $(inputs.reference) \
-        --repeats $(inputs.tandem_repeat_bed) \
-        --reads $(inputs.bam) \
+        --genome $(inputs.reference.path) \
+        --repeats $(inputs.tandem_repeat_bed.path) \
+        --reads $(inputs.bam.path) \
         --output-prefix $(inputs.bam.nameroot).trgt
 
       bcftools --version

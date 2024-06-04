@@ -38,14 +38,14 @@ arguments:
         --log-level INFO \
         --sort \
         --unmapped \
-        $(inputs.reference) \
-        $(inputs.bam) \
-        $(inputs.sample_id).$(inputs.bam.nameroot).$(inputs.reference_name).aligned.bam
+        $(inputs.reference.path) \
+        $(inputs.bam.path) \
+        $(inputs.sample_id).$(inputs.reference_name).aligned.bam
 
       # movie stats
       extract_read_length_and_qual.py \
-        $(inputs.bam) \
-      > $(inputs.sample_id).$(inputs.bam.nameroot).read_length_and_quality.tsv
+        $(inputs.bam.path) \
+      > $(inputs.sample_id).read_length_and_quality.tsv
 
       awk '{{ b=int($2/1000); b=(b>39?39:b); print 1000*b "\t" $2; }}' \
         $(inputs.sample_id).$(inputs.bam.nameroot).read_length_and_quality.tsv \
@@ -54,20 +54,20 @@ arguments:
         | awk 'BEGIN {{ for(i=0;i<=39;i++) {{ print 1000*i"\t0\t0"; }} }} {{ print; }}' \
         | sort -k1,1g \
         | datamash -g 1 sum 2 sum 3 \
-      > $(inputs.sample_id).$(inputs.bam.nameroot).read_length_summary.tsv
+      > $(inputs.sample_id).read_length_summary.tsv
 
       awk '{{ print ($3>50?50:$3) "\t" $2; }}' \
-            $(inputs.sample_id).$(inputs.bam.nameroot).read_length_and_quality.tsv \
+            $(inputs.sample_id).read_length_and_quality.tsv \
         | sort -k1,1g \
         | datamash -g 1 count 1 sum 2 \
         | awk 'BEGIN {{ for(i=0;i<=60;i++) {{ print i"\t0\t0"; }} }} {{ print; }}' \
         | sort -k1,1g \
         | datamash -g 1 sum 2 sum 3 \
-      > $(inputs.sample_id).$(inputs.bam.nameroot).read_quality_summary.tsv
+      > $(inputs.sample_id).read_quality_summary.tsv
 
 inputs:
   sample_id: { type: 'string' }
-  bam: { type: 'File' }
+  bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: false}] }
   reference: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}] }
   reference_name: { type: 'string' }
   threads: { type: 'int?', default: 24, doc: "Number of threads to allocate to this task." }

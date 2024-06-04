@@ -1,6 +1,6 @@
 class: CommandLineTool
 cwlVersion: v1.2
-id: pbmm2_align
+id: bcftools
 doc: |
   BCFtools is a set of utilities that manipulate variant calls in the Variant Call Format (VCF) and 
   its binary counterpart BCF. All commands work transparently with both VCFs and BCFs, both 
@@ -27,14 +27,14 @@ arguments:
       bcftools stats \
         --threads ${ return inputs.threads - 1 } \
         --apply-filters PASS --samples $(inputs.sample_id) \
-        --fasta-ref $(inputs.reference) \
-        $(inputs.vcf) \
+        --fasta-ref $(inputs.reference.path) \
+        $(inputs.vcf.path) \
       > $(inputs.vcf.nameroot).vcf.stats.txt
 
       bcftools roh \
         --threads ${ return inputs.threads - 1 } \
         --AF-dflt 0.4 \
-        $(inputs.vcf) \
+        $(inputs.vcf.path) \
       > $(inputs.vcf.nameroot).bcftools_roh.out
 
       echo -e "#chr\\tstart\\tend\\tqual" > $(inputs.vcf.nameroot).roh.bed

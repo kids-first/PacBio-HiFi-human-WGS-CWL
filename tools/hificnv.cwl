@@ -26,9 +26,9 @@ arguments:
         // Determine which bed file to use based on the sex input
         var expected_bed = "";
         if (inputs.sex === "MALE") {
-          expected_bed = inputs.expected_bed_male;
+          expected_bed = inputs.expected_bed_male.path;
         } else {
-          expected_bed = inputs.expected_bed_female;
+          expected_bed = inputs.expected_bed_female.path;
         }
         return "expected_bed=" + expected_bed;
       }
@@ -37,10 +37,10 @@ arguments:
 
       hificnv \
         --threads $(inputs.threads) \
-        --bam $(inputs.bam) \
-        --ref $(inputs.reference) \
-        --maf $(inputs.phased_vcf) \
-        --exclude $(inputs.exclude_bed) \
+        --bam $(inputs.bam.path) \
+        --ref $(inputs.reference.path) \
+        --maf $(inputs.phased_vcf.path) \
+        --exclude $(inputs.exclude_bed.path) \
         --expected-cn $expected_bed \
         --output-prefix $(inputs.output_prefix)
 
@@ -63,3 +63,4 @@ outputs:
   copynum_bedgraph: { type: 'File', outputBinding: { glob: '*.bedgraph' } }
   depth_bw: { type: 'File', outputBinding: { glob: '*.depth.bw' } }
   maf_bw: { type: 'File', outputBinding: { glob: '*.maf.bw' } }
+  

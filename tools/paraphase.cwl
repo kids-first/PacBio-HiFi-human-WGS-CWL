@@ -22,8 +22,8 @@ arguments:
 
       paraphase \
         --threads $(inputs.threads) \
-        --bam $(inputs.bam) \
-        --reference $(inputs.reference) 
+        --bam $(inputs.bam.path) \
+        --reference $(inputs.reference.path) 
 
 inputs:
   bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: true}] }
