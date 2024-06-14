@@ -27,11 +27,12 @@ arguments:
         --by 500 \
         --no-per-base \
         --use-median \
-        $(inputs.aligned_bam.nameroot) \
+        $(inputs.sample_id)_coverage \
         $(inputs.aligned_bam.path)
 
 inputs:
   aligned_bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: true}] }
+  sample_id: { type: 'string' }
   threads: { type: 'int?', default: 4, doc: "Number of threads to allocate to this task." }
   ram: { type: 'int?', default: 8, doc: "GB size of RAM to allocate to this task." }
 

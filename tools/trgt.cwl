@@ -65,5 +65,5 @@ inputs:
   ram: { type: 'int?', default: 4, doc: "GB size of RAM to allocate to this task." }
 
 outputs:
-  spanning_reads: { type: 'File', outputBinding: { glob: '*.bam' }, secondaryFiles: ['.bai'] }
-  repeat_vcf: { type: 'File', outputBinding: { glob: '*.vcf.gz' }, secondaryFiles: ['.tbi'] }
+  spanning_reads: { type: 'File', outputBinding: { glob: '*.sorted.bam' }, secondaryFiles: ['.bai'] }
+  repeat_vcf: { type: 'File', outputBinding: { glob: '*.sorted.vcf.gz' }, secondaryFiles: ['.tbi'] }

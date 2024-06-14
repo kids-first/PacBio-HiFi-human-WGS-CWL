@@ -16,7 +16,6 @@ inputs:
   sample_id: { type: 'string' }
   # references
   reference_fasta: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}] }
-  reference_name: { type: 'string' }
   reference_tandem_repeat_bed: { type: 'File', doc: "human_GRCh38_no_alt_analysis_set.trf.be" }
   trgt_tandem_repeat_bed: { type: 'File', doc: "human_GRCh38_no_alt_analysis_set.trgt.v0.3.4.bed" }
   # pbmm2_align
@@ -42,11 +41,12 @@ inputs:
   intermediate_results_dir: { type: 'string?', doc: "If specified, this should be an existing directory that is visible insider docker, and will be used to to store intermediate outputs." }
   logging_dir: { type: 'string?', doc: "Directory where we should write log files for each stage and optionally runtime reports." }
   make_examples_extra_args: { type: 'File?', doc: "A comma-separated list of flag_name=flag_value. 'flag_name' has to be valid flags for make_examples.py. If the flag_value is boolean, it has to be flag_name=true or flag_name=false." }
-  num_shards: { type: 'int?', doc: "Number of shards for make_examples step. (default: '1')" }
+  num_shards: { type: 'int?', default: 32, doc: "Number of shards for make_examples step." }
   postprocess_variants_extra_args: { type: 'File?', doc: "A comma-separated list of flag_name=flag_value. 'flag_name' has to be valid flags for postprocess_variants.py. If the flag_value is boolean, it has to be flag_name=true or flag_name=false." }
   deepvariant_regions: { type: ['null', File, string], doc: "Space-separated list of regions we want to process. Elements can be region literals (e.g., chr20:10-20) or paths to BED/BEDPE files." }
   runtime_report: { type: 'boolean?', doc: "Output make_examples runtime metrics and create a visual runtime report using runtime_by_region_vis. Only works with --logging_dir. (default: 'false')" }
   vcf_stats_report: { type: 'boolean?', doc: "Output a visual report (HTML) of statistics about the output VCF. (default: 'true')" }
+  deepvariant_ram: { type: 'int?', default: 4 }
   # bcftools
   bcftools_threads: { type: 'int?', default: 2 }
   bcftools_ram: { type: 'int?', default: 4 }
@@ -133,7 +133,6 @@ inputs:
   exclude_bed: { type: 'File', secondaryFiles: [{pattern: ".tbi", required: true}], doc: "cnv.excluded_regions.common_50.hg38.bed.gz" }
   expected_bed_male: { type: 'File', doc: "expected_cn.hg38.XY.bed" }
   expected_bed_female: { type: 'File', doc: "expected_cn.hg38.XX.bed" }
-  hificnv_output_prefix: { type: 'string?', default: "hificnv" }
   hificnv_threads: { type: 'int?', default: 8 }
 
 outputs: 
@@ -144,10 +143,11 @@ outputs:
   aligned_bam: { type: 'File', outputSource: pbmm2_align/output_bam }
   svsig: { type: 'File', outputSource: pbsv_discover/svsig }
   # per sample small variant calls
-  small_variant_gvcf: { type: 'File', outputSource: deepvariant/gvcf }
-  small_variant_vcf_stats: { type: 'File', outputSource: bcftools/vcf_stats }
-  small_variant_roh_out: { type: 'File', outputSource: bcftools/roh_out }
-  small_variant_roh_bed: { type: 'File', outputSource: bcftools/roh_bed }
+  deepvariant_vcf: { type: 'File', outputSource: deepvariant/vcf }
+  deepvariant_gvcf: { type: 'File', outputSource: deepvariant/gvcf }
+  deepvariant_vcf_stats: { type: 'File', outputSource: bcftools/vcf_stats }
+  deepvariant_roh_out: { type: 'File', outputSource: bcftools/roh_out }
+  deepvariant_roh_bed: { type: 'File', outputSource: bcftools/roh_bed }
   # per sample final pahsed variant calls and haplotagged alignments
   phased_vcf: { type: 'File[]', outputSource: hiphase/phased_vcf }
   phased_summary: { type: 'File', outputSource: hiphase/summary_file_out } 
@@ -181,7 +181,6 @@ steps:
       sample_id: sample_id
       bam: bam
       reference: reference_fasta
-      reference_name: reference_name
       threads: pbmm2_threads
     out: [output_bam, bam_stats, read_length_summary, read_quality_summary]
   
@@ -202,9 +201,9 @@ steps:
       sample_name: sample_id
       model_type: model_type
       output_vcf: 
-        valueFrom: $(inputs.sample_id + "." + inputs.reference_name + ".deepvariant.vcf.gz")
+        valueFrom: $(inputs.sample_name + ".deepvariant.vcf.gz")
       output_gvcf: 
-        valueFrom: $(inputs.sample_id + "." + inputs.reference_name + ".deepvariant.gvcf.gz")
+        valueFrom: $(inputs.sample_name + ".deepvariant.g.vcf.gz")
       call_variants_extra_args: call_variants_extra_args
       customized_model: customized_model
       dry_run: dry_run
@@ -216,6 +215,7 @@ steps:
       regions: deepvariant_regions
       runtime_report: runtime_report
       vcf_stats_report: vcf_stats_report
+      ram: deepvariant_ram
     out: [vcf, gvcf, visual_report]
   
   bcftools:
@@ -235,7 +235,7 @@ steps:
       reference: reference_fasta
       region: pbsv_region
       output_prefix: 
-        valueFrom: $(inputs.sample_id + "." + inputs.reference_name + ".pbsv.vcf")
+        valueFrom: "pbsv_call.vcf"
       read_optimization: read_optimization
       variant_types: variant_types
       min_sv_length: min_sv_length
@@ -263,15 +263,23 @@ steps:
       ram: pbsv_call_ram
     out: [pbsv_vcf]
   
+  bcftools_index:
+    run: ../tools/bcftools_index.cwl
+    in:
+      vcf: pbsv_call/pbsv_vcf
+      threads: bcftools_threads
+      ram: bcftools_ram
+    out: [zipped_vcf]
+  
   hiphase:
     run: ../tools/hiphase.cwl
     in: 
       bam: pbmm2_align/output_bam
-      vcf: [deepvariant/vcf, pbsv_call/pbsv_vcf]
+      vcf: [deepvariant/vcf, bcftools_index/zipped_vcf]
       reference: reference_fasta
       output_vcf: 
         valueFrom: |
-          $(inputs.vcf.map(function(e) { return e.basename + "vcf.gz" }))
+          $(inputs.vcf.map(function(e) { return "./hiphase." + e.basename + ".gz" }))
       output_bam: hiphase_output_bam
       sample_name: sample_id
       ignore_read_groups: ignore_read_groups
@@ -299,6 +307,7 @@ steps:
     run: ../tools/mosdepth.cwl
     in:
       aligned_bam: hiphase/haplotagged_bam
+      sample_id: sample_id
       threads: mosdepth_threads
       ram: mosdepth_ram
     out: [summary, region_bed]
@@ -321,7 +330,6 @@ steps:
       bam: hiphase/haplotagged_bam
       tandem_repeat_bed: trgt_tandem_repeat_bed
       sample_id: sample_id
-      reference_name: reference_name
       threads: coverage_dropouts_threads
       ram: coverage_dropouts_ram
     out: [trgt_dropouts]
@@ -332,7 +340,6 @@ steps:
       bam: hiphase/haplotagged_bam
       reference: reference_fasta
       sample_id: sample_id
-      reference_name: reference_name
       threads: cpg_pileup_threads
     out: [pileup_beds, pileup_bigwigs]
   
@@ -341,7 +348,6 @@ steps:
     in: 
       bam: hiphase/haplotagged_bam
       reference: reference_fasta
-      sample_id: sample_id
       threads: paraphase_threads
       ram: paraphase_ram
     out: [output_json, realigned_bam, paraphase_vcfs]
@@ -359,7 +365,6 @@ steps:
       exclude_bed: exclude_bed
       expected_bed_male: expected_bed_male
       expected_bed_female: expected_bed_female
-      output_prefix: hificnv_output_prefix
       threads: hificnv_threads
     out: [cnv_vcf, copynum_bedgraph, depth_bw, maf_bw]
 

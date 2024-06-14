@@ -13,12 +13,6 @@ requirements:
   - class: DockerRequirement
     dockerPull: quay.io/pacbio/pbsv@sha256:d78ee6deb92949bdfde98d3e48dab1d871c177d48d8c87c73d12c45bdda43446
 baseCommand: [pbsv, call]
-arguments:
-    - position: 99
-      prefix: ''
-      shellQuote: false
-      valueFrom: |
-        1>&2
 
 inputs:
   reference: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}], inputBinding: { position: 80 } }
@@ -84,8 +78,8 @@ inputs:
   filter_near_reference_gap: { type: 'string?', inputBinding: { prefix: "--filter-near-reference-gap", position: 1 }, doc: "Flag variants < N bp from a gap as 'NearReferenceGap'. [1K]" }
   filter_near_contig_end: { type: 'string?', inputBinding: { prefix: "--filter-near-contig-end", position: 1 }, doc: "Flag variants < N bp from a contig end as 'NearContigEnd'. [1K]" }
 
-  threads: { type: 'int?', default: 8, doc: "Number of threads to allocate to this task.", inputBinding: { position: 7 } }
+  threads: { type: 'int?', default: 8, doc: "Number of threads to allocate to this task.", inputBinding: { prefix: "--num-threads", position: 7 } }
   ram: { type: 'int?', default: 64, doc: "Int mem_gb = if select_first([sample_count, 1]) > 3 then 96 else 64" }
 
 outputs:
-  pbsv_vcf: { type: 'File', outputBinding: { glob: '*.vcf.gz' }, secondaryFiles: ['.tbi'] }
+  pbsv_vcf: { type: 'File', outputBinding: { glob: '*.vcf' } }

@@ -14,8 +14,9 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     coresMin: $(inputs.num_shards)
+    ramMin: $(inputs.ram * 1000)
   - class: DockerRequirement
-    dockerPull: gcr.io/deepvariant-docker/deepvariant:1.5.0
+    dockerPull: google/deepvariant:1.6.1
 baseCommand: [/opt/deepvariant/bin/run_deepvariant]
 arguments:
     - position: 99
@@ -26,8 +27,8 @@ arguments:
 
 inputs:
   # Required arguments
-  reads: { type: 'File', inputBinding: { prefix: "--reads", position: 40 }, doc: "Aligned, sorted, indexed BAM file containing the reads we want to call. Should be aligned to a reference genome compatible with --ref." }
-  ref: { type: 'File', inputBinding: { prefix: "--ref", position: 50 }, doc: "Genome reference to use. Must have an associated FAI index as well. Supports text or gzipped references. Should match the reference used to align the BAM file provided to --reads." }
+  reads: { type: 'File', secondaryFiles: [{ pattern: ".bai", required: true}], inputBinding: { prefix: "--reads", position: 40 }, doc: "Aligned, sorted, indexed BAM file containing the reads we want to call. Should be aligned to a reference genome compatible with --ref." }
+  ref: { type: 'File', secondaryFiles: [{ pattern: ".fai", required: true}], inputBinding: { prefix: "--ref", position: 50 }, doc: "Genome reference to use. Must have an associated FAI index as well. Supports text or gzipped references. Should match the reference used to align the BAM file provided to --reads." }
   sample_name: { type: 'string', inputBinding: { prefix: "--sample_name", position: 60 }, doc: "This flag is used for both make_examples and postprocess_variants." }
   model_type:
     type:
@@ -42,8 +43,8 @@ inputs:
       associated with each type, and it will set necessary flags corresponding to
       each model. If you want to use a customized model, add --customized_model
       flag in addition to this flag.
-  output_vcf: { type: 'string?', default: "deepvariant_output.vcf.gz", inputBinding: { prefix: "--output_vcf", position: 80 } }
-  output_gvcf: { type: 'string?', default: "deepvariant_output.gvcf.gz", inputBinding: { prefix: "--output_gvcf", position: 90 } }
+  output_vcf: { type: 'string?', default: "deepvariant.vcf.gz", inputBinding: { prefix: "--output_vcf", position: 80 } }
+  output_gvcf: { type: 'string?', default: "deepvariant.g.vcf.gz", inputBinding: { prefix: "--output_gvcf", position: 90 } }
 
 # Optional arguments
   call_variants_extra_args: { type: 'File?', inputBinding: { prefix: "--call_variants_extra_args", position: 1 }, doc: "A comma-separated list of flag_name=flag_value. 'flag_name' has to be valid flags for call_variants.py. If the flag_value is boolean, it has to be flag_name=true or flag_name=false." }
@@ -52,13 +53,14 @@ inputs:
   intermediate_results_dir: { type: 'string?', inputBinding: { prefix: "--intermediate_results_dir", position: 1 }, doc: "If specified, this should be an existing directory that is visible insider docker, and will be used to to store intermediate outputs." }
   logging_dir: { type: 'string?', inputBinding: { prefix: "--logging_dir", position: 1 }, doc: "Directory where we should write log files for each stage and optionally runtime reports." }
   make_examples_extra_args: { type: 'File?', inputBinding: { prefix: "--make_examples_extra_args", position: 1 }, doc: "A comma-separated list of flag_name=flag_value. 'flag_name' has to be valid flags for make_examples.py. If the flag_value is boolean, it has to be flag_name=true or flag_name=false." }
-  num_shards: { type: 'int?', inputBinding: { prefix: "--num_shards", position: 1 }, doc: "Number of shards for make_examples step. (default: '1')" }
+  num_shards: { type: 'int?', default: 32, inputBinding: { prefix: "--num_shards", position: 8 }, doc: "Number of shards for make_examples step." }
   postprocess_variants_extra_args: { type: 'File?', inputBinding: { prefix: "--postprocess_variants_extra_args", position: 1 }, doc: "A comma-separated list of flag_name=flag_value. 'flag_name' has to be valid flags for postprocess_variants.py. If the flag_value is boolean, it has to be flag_name=true or flag_name=false." }
   regions: { type: ['null', File, string], inputBinding: { prefix: "--regions", position: 1 }, doc: "Space-separated list of regions we want to process. Elements can be region literals (e.g., chr20:10-20) or paths to BED/BEDPE files." }
   runtime_report: { type: 'boolean?', inputBinding: { prefix: "--[no]runtime_report", position: 1 }, doc: "Output make_examples runtime metrics and create a visual runtime report using runtime_by_region_vis. Only works with --logging_dir. (default: 'false')" }
   vcf_stats_report: { type: 'boolean?', inputBinding: { prefix: "--[no]vcf_stats_report", position: 1 }, doc: "Output a visual report (HTML) of statistics about the output VCF. (default: 'true')" }
+  ram: { type: 'int?', default: 4, doc: "RAM (in GB) to use" }
 
 outputs:
-  vcf: { type: 'File', outputBinding: { glob: '*.output.vcf.gz' }, secondaryFiles: ['.tbi'], doc: "NanoCount returns a file containing count data per transcript. By default only transcripts with at least one read mapped are included in the output. This can be changed to include all transcripts with the option extra_tx_info" }
-  gvcf: { type: 'File', outputBinding: { glob: '*.g.vcf.gz' }, secondaryFiles: ['.tbi'], doc: "NanoCount returns a file containing count data per transcript. By default only transcripts with at least one read mapped are included in the output. This can be changed to include all transcripts with the option extra_tx_info" }
+  vcf: { type: 'File', outputBinding: { glob: '*deepvariant.vcf.gz' }, secondaryFiles: ['.tbi'], doc: "NanoCount returns a file containing count data per transcript. By default only transcripts with at least one read mapped are included in the output. This can be changed to include all transcripts with the option extra_tx_info" }
+  gvcf: { type: 'File', outputBinding: { glob: '*deepvariant.g.vcf.gz' }, secondaryFiles: ['.tbi'], doc: "NanoCount returns a file containing count data per transcript. By default only transcripts with at least one read mapped are included in the output. This can be changed to include all transcripts with the option extra_tx_info" }
   visual_report: { type: 'File?', outputBinding: { glob: '*.html' }, doc: "https://github.com/google/deepvariant/blob/r1.6.1/docs/deepvariant-vcf-stats-report.md" }

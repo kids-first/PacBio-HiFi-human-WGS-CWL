@@ -22,13 +22,12 @@ arguments:
       check_trgt_coverage.py \
         $(inputs.tandem_repeat_bed.path) \
         $(inputs.bam.path) \
-      > $(inputs.sample_id).$(inputs.reference_name).trgt.dropouts.txt
+      > $(inputs.sample_id).trgt.dropouts.txt
 
 inputs:
   bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: true}] }
   tandem_repeat_bed: { type: 'File' }
   sample_id: { type: 'string?' }
-  reference_name: { type: 'string?' }
   threads: { type: 'int?', default: 2, doc: "Number of threads to allocate to this task." }
   ram: { type: 'int?', default: 4, doc: "GB size of RAM to allocate to this task." }
 

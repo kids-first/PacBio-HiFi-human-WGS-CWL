@@ -29,18 +29,18 @@ arguments:
         --apply-filters PASS --samples $(inputs.sample_id) \
         --fasta-ref $(inputs.reference.path) \
         $(inputs.vcf.path) \
-      > $(inputs.vcf.nameroot).vcf.stats.txt
+      > $(inputs.sample_id).deepvariant.stats.txt
 
       bcftools roh \
         --threads ${ return inputs.threads - 1 } \
         --AF-dflt 0.4 \
         $(inputs.vcf.path) \
-      > $(inputs.vcf.nameroot).bcftools_roh.out
+      > $(inputs.sample_id).bcftools_roh.out
 
-      echo -e "#chr\\tstart\\tend\\tqual" > $(inputs.vcf.nameroot).roh.bed
+      echo -e "#chr\\tstart\\tend\\tqual" > $(inputs.sample_id).bcftools_roh.bed
       awk -v OFS='\t' '$1=="RG" {{ print $3, $4, $5, $8 }}' \
-        $(inputs.vcf.nameroot).bcftools_roh.out \
-      >> $(inputs.vcf.nameroot).roh.bed
+        $(inputs.sample_id).bcftools_roh.out \
+      >> $(inputs.sample_id).bcftools_roh.bed
 
 inputs:
   vcf: { type: 'File' }

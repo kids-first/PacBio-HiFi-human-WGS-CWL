@@ -10,7 +10,7 @@ requirements:
     coresMin: $(inputs.threads)
     ramMin: $(inputs.threads*2000) # Uses ~2 GB memory / thread
   - class: DockerRequirement
-    dockerPull: quay.io/pacbio/pb-cpg-tools@hificnv@sha256:19fdde99ad2454598ff7d82f27209e96184d9a6bb92dc0485cc7dbe87739b3c2
+    dockerPull: quay.io/pacbio/hificnv@sha256:19fdde99ad2454598ff7d82f27209e96184d9a6bb92dc0485cc7dbe87739b3c2
 baseCommand: ["/bin/bash", "-c"]
 arguments:
   - position: 0
@@ -42,9 +42,9 @@ arguments:
         --maf $(inputs.phased_vcf.path) \
         --exclude $(inputs.exclude_bed.path) \
         --expected-cn $expected_bed \
-        --output-prefix $(inputs.output_prefix)
+        --output-prefix $(inputs.sample_id).hificnv
 
-      bcftools index --tbi $(inputs.output_prefix).$(inputs.sample_id).vcf.gz
+      bcftools index --tbi $(inputs.sample_id).hificnv.vcf.gz
 
 inputs:
   sample_id: { type: 'string' }

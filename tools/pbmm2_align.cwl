@@ -40,7 +40,7 @@ arguments:
         --unmapped \
         $(inputs.reference.path) \
         $(inputs.bam.path) \
-        $(inputs.sample_id).$(inputs.reference_name).aligned.bam
+        $(inputs.sample_id).aligned.bam
 
       # movie stats
       extract_read_length_and_qual.py \
@@ -69,7 +69,6 @@ inputs:
   sample_id: { type: 'string' }
   bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: false}] }
   reference: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}] }
-  reference_name: { type: 'string' }
   threads: { type: 'int?', default: 24, doc: "Number of threads to allocate to this task." }
 
 outputs:
