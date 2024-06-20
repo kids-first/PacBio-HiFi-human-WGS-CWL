@@ -51,55 +51,9 @@ inputs:
   bcftools_threads: { type: 'int?', default: 2 }
   bcftools_ram: { type: 'int?', default: 4 }
   # pbsv_call
-  pbsv_region: { type: 'string?', doc: "Limit discovery to this reference region: CHR|CHR:START-END." }
-  read_optimization:
-    type:
-      - 'null'
-      - type: record
-        fields:
-          - name: "hifi"
-            type: boolean?
-            doc: "Use options optimized for HiFi reads: -S 0 -P 10."
-          - name: "ccs"
-            type: boolean?
-            doc: "Use options optimized for HiFi reads: -S 0 -P 10."
-  variant_types:
-    type:
-      - 'null'
-      - type: enum
-        name: variant_types
-        symbols: ["DEL","INS","INV","DUP","BND"]
-    doc: |
-      Call these SV types: "DEL", "INS", "INV", "DUP", "BND".
-  min_sv_length: { type: 'int?', doc: "Ignore variants with length < N bp. [20]" }
-  max_ins_length: { type: 'string?', doc: "Ignore insertions with length > N bp. [15K]" }
-  max_dup_length: { type: 'string?', doc: "Ignore duplications with length > N bp. [1M]" }
-  cluster_max_length_perc_diff: { type: 'int?', doc: "Do not cluster signatures with difference in length > P%. [25]" }
-  cluster_max_ref_pos_diff: { type: 'int?', doc: "Do not cluster signatures > N bp apart in reference. [200]" }
-  cluster_min_basepair_perc_id: { type: 'int?', doc: "Do not cluster signatures with basepair identity < P%. [10]" }
-  max_consensus_coverage: { type: 'int?', doc: "Limit to N reads for variant consensus. [20]" }
-  poa_scores: { type: 'string?', doc: "Score POA alignment with triplet match,mismatch,gap. [1,-2,-2]" }
-  min_realign_length: { type: 'int?', doc: "Consider segments with > N length for re-alignment. [100]" }
-  call_min_reads_all_samples: { type: 'int?', doc: "Ignore calls supported by < N reads total across samples. [3]" }
-  call_min_reads_one_sample: { type: 'int?', doc: "Ignore calls supported by < N reads in every sample. [3]" }
-  call_min_reads_per_strand_all_samples: { type: 'int?', doc: "Ignore calls supported by < N reads per strand total across samples [1]" }
-  call_min_bnd_reads_all_samples: { type: 'int?', doc: "Ignore BND calls supported by < N reads total across samples [2]" }
-  call_min_read_perc_one_sample: { type: 'int?', doc: "Ignore calls supported by < P% of reads in every sample. [20]" }
-  preserve_non_acgt: { type: 'boolean?', doc: "Preserve non-ACGT in REF allele instead of replacing with N." }
-  gt_min_reads: { type: 'int?', doc: "Minimum supporting reads to assign a sample a non-reference genotype. [1]" }
-  annotations: { type: 'File?', doc: "Annotate variants by comparing with sequences in fasta. Default annotations are ALU, L1, SVA." }
-  annotation_min_perc_sim: { type: 'int?', doc: "Annotate variant if sequence similarity > P%. [60]" }
-  min_n_in_gap: { type: 'int?', doc: "Consider >= N consecutive 'N' bp as a reference gap. [50]" }
-  filter_near_reference_gap: { type: 'string?', doc: "Flag variants < N bp from a gap as 'NearReferenceGap'. [1K]" }
-  filter_near_contig_end: { type: 'string?', doc: "Flag variants < N bp from a contig end as 'NearContigEnd'. [1K]" }
   pbsv_call_threads: { type: 'int?', default: 8 }
   pbsv_call_ram: { type: 'int?', default: 64, doc: "Int mem_gb = if select_first([sample_count, 1]) > 3 then 96 else 64" }
-  hiphase_output_bam: { type: 'string?', default: "hiphased.haplotagged.bam", doc: "Output haplotagged alignment file in BAM format. [example: haplotagged.bam]" }
   ignore_read_groups: { type: 'boolean?', doc: "Ignore BAM file read group IDs" }
-  summary_file: { type: 'string?', default: "hiphase.summary.tsv", doc: "Output summary phasing statistics file (csv/tsv). [example: summary.tsv]" }
-  stats_file: { type: 'string?', default: "hiphase.stats.tsv", doc: "Output algorithmic statistics file (csv/tsv). [example: stats.tsv]" }
-  blocks_file: { type: 'string?', default: "hiphase.blocks.tsv", doc: "Output blocks file (csv/tsv). [example: blocks.tsv]" }
-  haplotag_file: { type: 'string?', default: "hiphase.haplotags.tsv", doc: "Output haplotag file (csv/tsv). [example: haplotag.tsv]" }
   io_threads: { type: 'int?', doc: "Number of threads for BAM I/O (default: copy `--threads`)" }
   min_vcf_qual: { type: 'int?', doc: "Sets a minimum genotype quality (GQ) value to include a variant in the phasing [default: 0]" }
   min_mapq: { type: 'int?', doc: "Sets a minimum MAPQ to include a read in the phasing [default: 5]" }
@@ -233,60 +187,32 @@ steps:
     in:
       svsigs: pbsv_discover/svsig
       reference: reference_fasta
-      region: pbsv_region
-      output_prefix: 
-        valueFrom: "pbsv_call.vcf"
-      read_optimization: read_optimization
-      variant_types: variant_types
-      min_sv_length: min_sv_length
-      max_ins_length: max_ins_length
-      max_dup_length: max_dup_length
-      cluster_max_length_perc_diff: cluster_max_length_perc_diff
-      cluster_max_ref_pos_diff: cluster_max_ref_pos_diff
-      cluster_min_basepair_perc_id: cluster_min_basepair_perc_id
-      max_consensus_coverage: max_consensus_coverage
-      poa_scores: poa_scores
-      min_realign_length: min_realign_length
-      call_min_reads_all_samples: call_min_reads_all_samples
-      call_min_reads_one_sample: call_min_reads_one_sample
-      call_min_reads_per_strand_all_samples: call_min_reads_per_strand_all_samples
-      call_min_bnd_reads_all_samples: call_min_bnd_reads_all_samples
-      call_min_read_perc_one_sample: call_min_read_perc_one_sample
-      preserve_non_acgt: preserve_non_acgt
-      gt_min_reads: gt_min_reads
-      annotations: annotations
-      annotation_min_perc_sim: annotation_min_perc_sim
-      min_n_in_gap: min_n_in_gap
-      filter_near_reference_gap: filter_near_reference_gap
-      filter_near_contig_end: filter_near_contig_end
+      sample_id: sample_id
       threads: pbsv_call_threads
       ram: pbsv_call_ram
     out: [pbsv_vcf]
-  
-  bcftools_index:
-    run: ../tools/bcftools_index.cwl
-    in:
-      vcf: pbsv_call/pbsv_vcf
-      threads: bcftools_threads
-      ram: bcftools_ram
-    out: [zipped_vcf]
   
   hiphase:
     run: ../tools/hiphase.cwl
     in: 
       bam: pbmm2_align/output_bam
-      vcf: [deepvariant/vcf, bcftools_index/zipped_vcf]
+      vcf: [deepvariant/vcf, pbsv_call/pbsv_vcf]
       reference: reference_fasta
+      sample_name: sample_id
       output_vcf: 
         valueFrom: |
-          $(inputs.vcf.map(function(e) { return "./hiphase." + e.basename + ".gz" }))
-      output_bam: hiphase_output_bam
-      sample_name: sample_id
+          $(inputs.vcf.map(function(e) { return "./hiphase." + e.basename }))
+      output_bam:
+        valueFrom: $(inputs.sample_name + ".hiphase.haplotagged.bam")
       ignore_read_groups: ignore_read_groups
-      summary_file: summary_file
-      stats_file: stats_file
-      blocks_file: blocks_file
-      haplotag_file: haplotag_file
+      summary_file: 
+        valueFrom: $(inputs.sample_name + ".hiphase.summary.tsv")
+      stats_file: 
+        valueFrom: $(inputs.sample_name + ".hiphase.stats.tsv")
+      blocks_file:
+        valueFrom: $(inputs.sample_name + ".hiphase.blocks.tsv")
+      haplotag_file:
+        valueFrom: $(inputs.sample_name + ".hiphase.haplotags.tsv")
       io_threads: io_threads
       min_vcf_qual: min_vcf_qual
       min_mapq: min_mapq
@@ -348,6 +274,7 @@ steps:
     in: 
       bam: hiphase/haplotagged_bam
       reference: reference_fasta
+      sample_id: sample_id
       threads: paraphase_threads
       ram: paraphase_ram
     out: [output_json, realigned_bam, paraphase_vcfs]

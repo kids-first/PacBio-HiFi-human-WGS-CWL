@@ -30,30 +30,30 @@ arguments:
         --genome $(inputs.reference.path) \
         --repeats $(inputs.tandem_repeat_bed.path) \
         --reads $(inputs.bam.path) \
-        --output-prefix $(inputs.bam.nameroot).trgt
+        --output-prefix $(inputs.sample_id).trgt
 
       bcftools --version
 
       bcftools sort \
         --output-type z \
-        --output $(inputs.bam.nameroot).trgt.sorted.vcf.gz \
-        $(inputs.bam.nameroot).trgt.vcf.gz
+        --output $(inputs.sample_id).trgt.sorted.vcf.gz \
+        $(inputs.sample_id).trgt.vcf.gz
 
       bcftools index \
         --threads ${ return inputs.threads - 1 } \
         --tbi \
-        $(inputs.bam.nameroot).trgt.sorted.vcf.gz
+        $(inputs.sample_id).trgt.sorted.vcf.gz
 
       samtools --version
 
       samtools sort \
         -@ ${ return inputs.threads - 1 } \
-        -o $(inputs.bam.nameroot).trgt.spanning.sorted.bam \
-        $(inputs.bam.nameroot).trgt.spanning.bam
+        -o $(inputs.sample_id).trgt.spanning.sorted.bam \
+        $(inputs.sample_id).trgt.spanning.bam
 
       samtools index \
         -@ ${ return inputs.threads - 1 } \
-        $(inputs.bam.nameroot).trgt.spanning.sorted.bam
+        $(inputs.sample_id).trgt.spanning.sorted.bam
 
 inputs:
   sample_id: { type: 'string' }
