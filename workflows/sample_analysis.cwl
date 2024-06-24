@@ -102,8 +102,10 @@ outputs:
   deepvariant_vcf_stats: { type: 'File', outputSource: bcftools/vcf_stats }
   deepvariant_roh_out: { type: 'File', outputSource: bcftools/roh_out }
   deepvariant_roh_bed: { type: 'File', outputSource: bcftools/roh_bed }
+  pbsv_call_vcf: { type: 'File', outputSource: pbsv_call/pbsv_vcf }
   # per sample final pahsed variant calls and haplotagged alignments
-  phased_vcf: { type: 'File[]', outputSource: hiphase/phased_vcf }
+  phased_deepvariant_vcf: { type: 'File', outputSource: hiphase/phased_deepvariant_vcf }
+  phased_pbsv_vcf: { type: 'File?', outputSource: hiphase/phased_pbsv_vcf }
   phased_summary: { type: 'File', outputSource: hiphase/summary_file_out } 
   hiphase_stats: { type: 'File', outputSource: hiphase/stats_file_out }
   hiphase_blocks: { type: 'File', outputSource: hiphase/blocks_file_out }
@@ -196,15 +198,19 @@ steps:
     run: ../tools/hiphase.cwl
     in: 
       bam: pbmm2_align/output_bam
-      vcf: [deepvariant/vcf, pbsv_call/pbsv_vcf]
+      deepvariant_vcf: deepvariant/vcf
+      output_deepvariant_vcf:
+        valueFrom: |
+          $("./hiphase." + inputs.deepvariant_vcf.basename)
+      pbsv_vcf: pbsv_call/pbsv_vcf
+      output_pbsv_vcf:
+        valueFrom: |
+          $("./hiphase." + inputs.pbsv_vcf.basename)
       reference: reference_fasta
       sample_name: sample_id
-      output_vcf: 
-        valueFrom: |
-          $(inputs.vcf.map(function(e) { return "./hiphase." + e.basename }))
+      ignore_read_groups: ignore_read_groups
       output_bam:
         valueFrom: $(inputs.sample_name + ".hiphase.haplotagged.bam")
-      ignore_read_groups: ignore_read_groups
       summary_file: 
         valueFrom: $(inputs.sample_name + ".hiphase.summary.tsv")
       stats_file: 
@@ -227,7 +233,7 @@ steps:
       phase_queue_increment: phase_queue_increment
       threads: hiphase_threads
       ram: hiphase_ram
-    out: [phased_vcf, blocks_file_out, summary_file_out, haplotag_file_out, stats_file_out, haplotagged_bam]
+    out: [phased_deepvariant_vcf, phased_pbsv_vcf, blocks_file_out, summary_file_out, haplotag_file_out, stats_file_out, haplotagged_bam]
 
   mosdepth:
     run: ../tools/mosdepth.cwl
@@ -285,9 +291,7 @@ steps:
       sample_id: sample_id
       sex: sex
       bam: hiphase/haplotagged_bam
-      phased_vcf: 
-        source: hiphase/phased_vcf
-        valueFrom: $(self[0])
+      phased_vcf: hiphase/phased_deepvariant_vcf
       reference: reference_fasta
       exclude_bed: exclude_bed
       expected_bed_male: expected_bed_male
