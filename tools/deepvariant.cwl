@@ -58,7 +58,7 @@ inputs:
   regions: { type: ['null', File, string], inputBinding: { prefix: "--regions", position: 1 }, doc: "Space-separated list of regions we want to process. Elements can be region literals (e.g., chr20:10-20) or paths to BED/BEDPE files." }
   runtime_report: { type: 'boolean?', inputBinding: { prefix: "--[no]runtime_report", position: 1 }, doc: "Output make_examples runtime metrics and create a visual runtime report using runtime_by_region_vis. Only works with --logging_dir. (default: 'false')" }
   vcf_stats_report: { type: 'boolean?', inputBinding: { prefix: "--[no]vcf_stats_report", position: 1 }, doc: "Output a visual report (HTML) of statistics about the output VCF. (default: 'true')" }
-  ram: { type: 'int?', default: 4, doc: "RAM (in GB) to use" }
+  ram: { type: 'int?', default: 8, doc: "RAM (in GB) to use" }
 
 outputs:
   vcf: { type: 'File', outputBinding: { glob: '*deepvariant.vcf.gz' }, secondaryFiles: ['.tbi'], doc: "NanoCount returns a file containing count data per transcript. By default only transcripts with at least one read mapped are included in the output. This can be changed to include all transcripts with the option extra_tx_info" }
