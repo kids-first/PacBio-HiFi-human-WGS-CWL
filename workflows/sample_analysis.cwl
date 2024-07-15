@@ -11,6 +11,7 @@ requirements:
   - class: MultipleInputFeatureRequirement
   - class: StepInputExpressionRequirement
   - class: InlineJavascriptRequirement
+  - class: SubworkflowFeatureRequirement
 
 inputs: 
   sample_id: { type: 'string' }
@@ -25,28 +26,23 @@ inputs:
   pbsv_discover_cpu: { type: 'int?', default: 2, doc: "Number of threads to allocate to this task." }
   pbsv_discover_ram: { type: 'int?', default: 8, doc: "GB size of RAM to allocate to this task." }
   # deepvariant
-  model_type:
+  num_shards: { type: 'int?', default: 32 }
+  make_examples_cpus_per_job: { type: 'int?', default: 36, doc: "Number of CPUs per job." }
+  make_examples_mem_per_job: { type: 'int?', default: 1024, doc: "Memory per job[MB]." }
+  custom_model: { type: 'File?', secondaryFiles: [{pattern: "^.index", required: true}, {pattern: "^.meta", required: true}], doc: "Custom TensorFlow model checkpoint to use to evaluate candidate variant calls. If not provided, the model trained by the DeepVariant team will be used." }
+  model:
     type:
       - type: enum
-        name: model_type
-        symbols: ["WGS","WES","PACBIO", "ONT_R104", "HYBRID_PACBIO_ILLUMINA"]
-    doc: |
-      Required. Type of model to use for variant calling. Set this flag to use the default model
-      associated with each type, and it will set necessary flags corresponding to
-      each model. If you want to use a customized model, add --customized_model
-      flag in addition to this flag.
-  call_variants_extra_args: { type: 'File?', doc: "A comma-separated list of flag_name=flag_value. 'flag_name' has to be valid flags for call_variants.py. If the flag_value is boolean, it has to be flag_name=true or flag_name=false." }
-  customized_model: { type: 'File?', doc: "A path to a model checkpoint to load for the 'call_variants' step. If not set, the default for each --model_type will be used" }
-  dry_run: { type: 'boolean?', doc: "If True, only prints out commands without executing them. (default: 'false')" }
-  intermediate_results_dir: { type: 'string?', doc: "If specified, this should be an existing directory that is visible insider docker, and will be used to to store intermediate outputs." }
-  logging_dir: { type: 'string?', doc: "Directory where we should write log files for each stage and optionally runtime reports." }
-  make_examples_extra_args: { type: 'File?', doc: "A comma-separated list of flag_name=flag_value. 'flag_name' has to be valid flags for make_examples.py. If the flag_value is boolean, it has to be flag_name=true or flag_name=false." }
-  num_shards: { type: 'int?', default: 32, doc: "Number of shards for make_examples step." }
-  postprocess_variants_extra_args: { type: 'File?', doc: "A comma-separated list of flag_name=flag_value. 'flag_name' has to be valid flags for postprocess_variants.py. If the flag_value is boolean, it has to be flag_name=true or flag_name=false." }
-  deepvariant_regions: { type: ['null', File, string], doc: "Space-separated list of regions we want to process. Elements can be region literals (e.g., chr20:10-20) or paths to BED/BEDPE files." }
-  runtime_report: { type: 'boolean?', doc: "Output make_examples runtime metrics and create a visual runtime report using runtime_by_region_vis. Only works with --logging_dir. (default: 'false')" }
-  vcf_stats_report: { type: 'boolean?', doc: "Output a visual report (HTML) of statistics about the output VCF. (default: 'true')" }
-  deepvariant_ram: { type: 'int?', default: 4 }
+        symbols: ["WGS", "WES", "PACBIO", "HYBRID_PACBIO_ILLUMINA", "ONT_R104"]
+    doc: "TensorFlow model checkpoint to use to evaluate candidate variant calls."
+    default: "PACBIO"
+  call_variants_cpus_per_job: { type: 'int?', default: 36, doc: "Number of CPUs per job." }
+  call_variants_mem_per_job: { type: 'int?', default: 1024, doc: "Memory per job[MB]." }
+  qual_filter: { type: 'float?', doc: "Any variant with QUAL < qual_filter will be filtered in the VCF file." }
+  cnn_homref_call_min_gq: { type: 'float?', doc: "All CNN RefCalls whose GQ is less than this value will have ./. genotype instead of 0/0." }
+  multi_allelic_qual_filter: { type: 'float?', doc: "The qual value below which to filter multi-allelic variants." }
+  postprocess_variants_cpus_per_job: { type: 'int?', default: 36, doc: "Number of CPUs per job." }
+  postprocess_variants_mem_per_job: { type: 'int?', default: 1024, doc: "Memory per job[MB]." }
   # bcftools
   bcftools_threads: { type: 'int?', default: 2 }
   bcftools_ram: { type: 'int?', default: 4 }
@@ -150,29 +146,24 @@ steps:
     out: [svsig]
   
   deepvariant:
-    run: ../tools/deepvariant.cwl
+    run: ../subworkflows/deepvariant.cwl
     in:
       reads: pbmm2_align/output_bam
-      ref: reference_fasta
+      reference: reference_fasta
       sample_name: sample_id
-      model_type: model_type
-      output_vcf: 
-        valueFrom: $(inputs.sample_name + ".deepvariant.vcf.gz")
-      output_gvcf: 
-        valueFrom: $(inputs.sample_name + ".deepvariant.g.vcf.gz")
-      call_variants_extra_args: call_variants_extra_args
-      customized_model: customized_model
-      dry_run: dry_run
-      intermediate_results_dir: intermediate_results_dir
-      logging_dir: logging_dir
-      make_examples_extra_args: make_examples_extra_args
       num_shards: num_shards
-      postprocess_variants_extra_args: postprocess_variants_extra_args
-      regions: deepvariant_regions
-      runtime_report: runtime_report
-      vcf_stats_report: vcf_stats_report
-      ram: deepvariant_ram
-    out: [vcf, gvcf, visual_report]
+      make_examples_cpus_per_job: make_examples_cpus_per_job
+      make_examples_mem_per_job: make_examples_mem_per_job
+      custom_model: custom_model
+      model: model
+      call_variants_cpus_per_job: call_variants_cpus_per_job
+      call_variants_mem_per_job: call_variants_mem_per_job
+      qual_filter: qual_filter
+      cnn_homref_call_min_gq: cnn_homref_call_min_gq
+      multi_allelic_qual_filter: multi_allelic_qual_filter
+      postprocess_variants_cpus_per_job: postprocess_variants_cpus_per_job
+      postprocess_variants_mem_per_job: postprocess_variants_mem_per_job
+    out: [vcf, gvcf]
   
   bcftools:
     run: ../tools/bcftools.cwl
