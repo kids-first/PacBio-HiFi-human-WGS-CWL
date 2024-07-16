@@ -40,7 +40,7 @@ arguments:
         CMD += ' --vcf_stats_report=false'
         CMD += ' --ref ' + inputs.reference.path 
         CMD += ' --infile ' + inputs.variants.path 
-        CMD += ' --outfile ./' + inputs.sample_name + '.deepvariant.vcf'
+        CMD += ' --outfile ./' + inputs.sample_name + '.deepvariant.vcf.gz'
         CMD += ' --nonvariant_site_tfrecord_path "nonvariant_site_tfrecords/gvcf.tfrecord@${N_SHARDS}.gz"'
         CMD += ' --gvcf_outfile ./' + inputs.sample_name + '.deepvariant.gvcf.gz'
 
@@ -69,5 +69,5 @@ inputs:
   mem_per_job: { type: 'int?', default: 1024, doc: "Memory per job[MB]." }
 
 outputs:
-  output_vcf: { type: 'File?', outputBinding: { glob: '*.vcf' } }
+  output_vcf: { type: 'File?', outputBinding: { glob: '*.vcf.gz' }, secondaryFiles: ['.tbi'] }
   output_gvcf: { type: 'File?', outputBinding: { glob: '*.gvcf.gz' }, secondaryFiles: ['.tbi'] }
