@@ -13,6 +13,10 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: SubworkflowFeatureRequirement
 
+hints:
+- class: 'sbg:maxNumberOfParallelInstances'
+  value: 2
+
 inputs: 
   sample_id: { type: 'string' }
   # references
