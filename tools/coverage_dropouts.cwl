@@ -11,14 +11,11 @@ requirements:
     ramMin: $(inputs.ram*1000)
   - class: DockerRequirement
     dockerPull: quay.io/pacbio/trgt@sha256:8c9f236eb3422e79d7843ffd59e1cbd9b76774525f20d88cd68ca64eb63054eb
-baseCommand: ["/bin/bash", "-c"]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: |
-      set -euo pipefail
-      
-      # Get coverage dropouts
       check_trgt_coverage.py \
         $(inputs.tandem_repeat_bed.path) \
         $(inputs.bam.path) \

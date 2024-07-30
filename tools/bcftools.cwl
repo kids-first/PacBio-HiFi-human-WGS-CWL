@@ -15,15 +15,11 @@ requirements:
     ramMin: $(inputs.ram*1000)
   - class: DockerRequirement
     dockerPull: quay.io/pacbio/bcftools@sha256:46720a7ab5feba5be06d5269454a6282deec13060e296f0bc441749f6f26fdec
-baseCommand: ["/bin/bash", "-c"]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: |
-      set -euo pipefail
-
-      bcftools --version
-
       bcftools stats \
         --threads ${ return inputs.threads - 1 } \
         --apply-filters PASS --samples $(inputs.sample_id) \

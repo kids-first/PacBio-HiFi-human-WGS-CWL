@@ -27,7 +27,7 @@ inputs:
   reference: { type: 'File', inputBinding: { prefix: "--reference", position: 50 }, doc: "Reference FASTA file" }
   bam: {type: 'File', inputBinding: { prefix: "--bam", position: 60 }, secondaryFiles: [{ pattern: ".bai", required: true}], doc: "Path to a BAM file containing reads only from the sample that is being phased" }
   deepvariant_vcf: { type: 'File', inputBinding: { prefix: "--vcf", position: 70 }, doc: "Path to a VCF file containing the deepvariants to phase" }
-  output_deepvariant_vcf: { type: 'string', default: "hiphase.deepvariant", inputBinding: { prefix: "--output-vcf", position: 72 }, doc: "Output filename for DeepVariant VCF" }
+  output_deepvariant_name: { type: 'string', default: "hiphase.deepvariant", inputBinding: { prefix: "--output-vcf", position: 72 }, doc: "Output filename for DeepVariant VCF" }
   pbsv_vcf: { type: 'File?', inputBinding: { prefix: "--vcf", position: 74 }, doc: "Path to a VCF file containing the PBSV calls to phase" }
   output_pbsv_vcf: { type: 'string?', default: "hiphase.pbsv", inputBinding: { prefix: "--output-vcf", position: 76 }, doc: "Output filename for PBSV VCF" }
 

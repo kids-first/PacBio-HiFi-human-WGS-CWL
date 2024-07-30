@@ -61,6 +61,6 @@ inputs:
   ram: { type: 'int?', default: 8, doc: "RAM (in GB) to use" }
 
 outputs:
-  vcf: { type: 'File', outputBinding: { glob: '*deepvariant.vcf.gz' }, secondaryFiles: ['.tbi'], doc: "NanoCount returns a file containing count data per transcript. By default only transcripts with at least one read mapped are included in the output. This can be changed to include all transcripts with the option extra_tx_info" }
-  gvcf: { type: 'File', outputBinding: { glob: '*deepvariant.g.vcf.gz' }, secondaryFiles: ['.tbi'], doc: "NanoCount returns a file containing count data per transcript. By default only transcripts with at least one read mapped are included in the output. This can be changed to include all transcripts with the option extra_tx_info" }
+  vcf: { type: 'File', outputBinding: { glob: '*deepvariant.vcf.gz' }, secondaryFiles: ['.tbi'] }
+  gvcf: { type: 'File', outputBinding: { glob: '*deepvariant.g.vcf.gz' }, secondaryFiles: ['.tbi'] }
   visual_report: { type: 'File?', outputBinding: { glob: '*.html' }, doc: "https://github.com/google/deepvariant/blob/r1.6.1/docs/deepvariant-vcf-stats-report.md" }

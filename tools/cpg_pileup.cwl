@@ -11,15 +11,11 @@ requirements:
     ramMin: $(inputs.threads*4000) # Uses ~4 GB memory / thread
   - class: DockerRequirement
     dockerPull: quay.io/pacbio/pb-cpg-tools@sha256:b95ff1c53bb16e53b8c24f0feaf625a4663973d80862518578437f44385f509b
-baseCommand: ["/bin/bash", "-c"]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: |
-      set -euo pipefail
-
-      aligned_bam_to_cpg_scores --version
-
       aligned_bam_to_cpg_scores \
         --threads $(inputs.threads) \
         --bam $(inputs.bam.path) \

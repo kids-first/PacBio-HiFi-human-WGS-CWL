@@ -12,12 +12,12 @@ requirements:
 
 inputs:
   reference: { type: 'File', secondaryFiles: [{pattern: ".fai", required: false}, {pattern: ".gzi", required: false}], doc: "Genome reference FASTA to use. Must have an associated FAI index as well. Supports text or gzipped references. Should match the reference used to align the BAM file provided to the 'reads' input." }
-  reads: { type: 'File', secondaryFiles: [{pattern: "^.bai", required: false}, {pattern: ".bai", required: false}], doc: "Aligned, sorted, indexed BAM file containing the reads we want to call. Should be aligned to a reference genome compatible with the FASTA provided on the 'ref' input." }
+  reads: { type: 'File', secondaryFiles: [{pattern: "^.bai", required: false}, {pattern: ".bai", required: false}, {pattern: "^.crai", required: false}, {pattern: ".crai", required: false}], doc: "Aligned, sorted, indexed BAM/CRAM file containing the reads we want to call. Should be aligned to a reference genome compatible with the FASTA provided on the 'ref' input." }
   num_shards: { type: 'int?', default: 32 }
   sample_name: { type: 'string' }
   # make_examples
-  make_examples_cpus_per_job: { type: 'int?', default: 36, doc: "Number of CPUs per job." }
-  make_examples_mem_per_job: { type: 'int?', default: 1024, doc: "Memory per job[MB]." }
+  make_examples_cpu: { type: 'int?', default: 36, doc: "CPUs to allocate to this task" }
+  make_examples_ram: { type: 'int?', default: 40, doc: "GB of RAM to allocate to this task." }
   # call_variants
   custom_model: { type: 'File?', secondaryFiles: [{pattern: "^.index", required: true}, {pattern: "^.meta", required: true}], doc: "Custom TensorFlow model checkpoint to use to evaluate candidate variant calls. If not provided, the model trained by the DeepVariant team will be used." }
   model:
@@ -26,14 +26,14 @@ inputs:
         symbols: ["WGS", "WES", "PACBIO", "HYBRID_PACBIO_ILLUMINA", "ONT_R104"]
     doc: "TensorFlow model checkpoint to use to evaluate candidate variant calls."
     default: "PACBIO"
-  call_variants_cpus_per_job: { type: 'int?', default: 36, doc: "Number of CPUs per job." }
-  call_variants_mem_per_job: { type: 'int?', default: 1024, doc: "Memory per job[MB]." }
+  call_variants_cpu: { type: 'int?', default: 36, doc: "CPUs to allocate to this task" }
+  call_variants_ram: { type: 'int?', default: 60, doc: "GB of RAM to allocate to this task." }
   # postprocess_variants
   qual_filter: { type: 'float?', doc: "Any variant with QUAL < qual_filter will be filtered in the VCF file." }
   cnn_homref_call_min_gq: { type: 'float?', doc: "All CNN RefCalls whose GQ is less than this value will have ./. genotype instead of 0/0." }
   multi_allelic_qual_filter: { type: 'float?', doc: "The qual value below which to filter multi-allelic variants." }
-  postprocess_variants_cpus_per_job: { type: 'int?', default: 36, doc: "Number of CPUs per job." }
-  postprocess_variants_mem_per_job: { type: 'int?', default: 1024, doc: "Memory per job[MB]." }
+  postprocess_variants_cpu: { type: 'int?', default: 36, doc: "CPUs to allocate to this task" }
+  postprocess_variants_ram: { type: 'int?', default: 40, doc: "GB of RAM to allocate to this task." }
 
 outputs:
   vcf: { type: 'File?', outputSource: postprocess_variants/output_vcf }
@@ -45,9 +45,9 @@ steps:
     in: 
       reference: reference
       reads: reads
-      cpus_per_job: make_examples_cpus_per_job
+      cpu: make_examples_cpu
       n_shards: num_shards
-      mem_per_job: make_examples_mem_per_job
+      ram: make_examples_ram
     out: [example_tfrecord_tar, nonvariant_site_tfrecord_tar]
 
   call_variants:
@@ -56,9 +56,9 @@ steps:
       example_tfrecord_tar: make_examples/example_tfrecord_tar
       custom_model: custom_model
       model: model
-      cpus_per_job: call_variants_cpus_per_job
+      cpu: call_variants_cpu
       n_shards: num_shards
-      mem_per_job: call_variants_mem_per_job
+      ram: call_variants_ram
     out: [variants]
 
   postprocess_variants:
@@ -71,8 +71,8 @@ steps:
       cnn_homref_call_min_gq: cnn_homref_call_min_gq
       multi_allelic_qual_filter: multi_allelic_qual_filter
       nonvariant_site_tfrecord: make_examples/nonvariant_site_tfrecord_tar
-      cpus_per_job: postprocess_variants_cpus_per_job
+      cpu: postprocess_variants_cpu
       n_shards: num_shards
-      mem_per_job: postprocess_variants_mem_per_job
+      ram: postprocess_variants_ram
     out: [output_vcf, output_gvcf]
 

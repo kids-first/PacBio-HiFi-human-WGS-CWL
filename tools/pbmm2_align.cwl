@@ -15,21 +15,15 @@ requirements:
   - class: ShellCommandRequirement
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    coresMin: $(inputs.threads)
-    ramMin: ${
-      return Math.ceil(inputs.threads * 4)
-     } 
+    ramMin: $(inputs.ram * 1000)
+    coresMin: $(inputs.cpu)
   - class: DockerRequirement
     dockerPull: quay.io/pacbio/pbmm2@sha256:1013aa0fd5fb42c607d78bfe3ec3d19e7781ad3aa337bf84d144c61ed7d51fa1
-baseCommand: ["/bin/bash", "-c"]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: |
-      set -euo pipefail
-
-      pbmm2 --version
-
       pbmm2 align \
         --num-threads $(inputs.threads) \
         --sort-memory 4G \
@@ -42,13 +36,13 @@ arguments:
         $(inputs.bam.path) \
         $(inputs.sample_id).aligned.bam
 
-      # movie stats
+      # bam stats
       extract_read_length_and_qual.py \
         $(inputs.bam.path) \
       > $(inputs.sample_id).read_length_and_quality.tsv
 
       awk '{{ b=int($2/1000); b=(b>39?39:b); print 1000*b "\t" $2; }}' \
-        $(inputs.sample_id).$(inputs.bam.nameroot).read_length_and_quality.tsv \
+        $(inputs.sample_id).read_length_and_quality.tsv \
         | sort -k1,1g \
         | datamash -g 1 count 1 sum 2 \
         | awk 'BEGIN {{ for(i=0;i<=39;i++) {{ print 1000*i"\t0\t0"; }} }} {{ print; }}' \
@@ -67,9 +61,11 @@ arguments:
 
 inputs:
   sample_id: { type: 'string' }
-  bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: false}] }
+  bam: { type: 'File' }
   reference: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}] }
   threads: { type: 'int?', default: 24, doc: "Number of threads to allocate to this task." }
+  cpu: { type: 'int?', default: 36, doc: "Number of threads to use" }
+  ram: { type: 'int?', default: 36, doc: "RAM (in GB) to use" }
 
 outputs:
   output_bam: { type: 'File', outputBinding: { glob: '*.bam' }, secondaryFiles: ['.bai'] }

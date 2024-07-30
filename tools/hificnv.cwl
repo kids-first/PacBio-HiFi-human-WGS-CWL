@@ -11,29 +11,15 @@ requirements:
     ramMin: $(inputs.threads*2000) # Uses ~2 GB memory / thread
   - class: DockerRequirement
     dockerPull: quay.io/pacbio/hificnv@sha256:19fdde99ad2454598ff7d82f27209e96184d9a6bb92dc0485cc7dbe87739b3c2
-baseCommand: ["/bin/bash", "-c"]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: |
-      set -euo pipefail
-
-      if [ -z "$(inputs.sex)" ]; then
-        echo "Sex is not defined for $(inputs.sample_id). Defaulting to karyotype XX for TRGT."
-      fi
-
       ${
-        // Determine which bed file to use based on the sex input
-        var expected_bed = "";
-        if (inputs.sex === "MALE") {
-          expected_bed = inputs.expected_bed_male.path;
-        } else {
-          expected_bed = inputs.expected_bed_female.path;
-        }
+        var expected_bed = inputs.sex === "MALE" ? inputs.expected_bed_male.path : inputs.expected_bed_female.path;
         return "expected_bed=" + expected_bed;
       }
-
-      hificnv --version
 
       hificnv \
         --threads $(inputs.threads) \

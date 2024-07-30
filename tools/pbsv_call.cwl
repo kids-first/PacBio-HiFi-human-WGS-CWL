@@ -13,15 +13,11 @@ requirements:
     ramMin: $(inputs.ram*1000)
   - class: DockerRequirement
     dockerPull: quay.io/pacbio/pbsv@sha256:d78ee6deb92949bdfde98d3e48dab1d871c177d48d8c87c73d12c45bdda43446
-baseCommand: ["/bin/bash", "-c"]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: |
-      set -euo pipefail
-      
-      pbsv --version
-
       pbsv call \
         --hifi \
         --min-sv-length 20 \
@@ -31,11 +27,7 @@ arguments:
         $(inputs.svsigs.path) \
         $(inputs.sample_id).pbsv_call.vcf
 
-      bgzip --version
-
       bgzip $(inputs.sample_id).pbsv_call.vcf
-
-      tabix --version
 
       tabix -p vcf $(inputs.sample_id).pbsv_call.vcf.gz
 

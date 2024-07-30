@@ -11,28 +11,22 @@ requirements:
     ramMin: $(inputs.ram*1000)
   - class: DockerRequirement
     dockerPull: quay.io/pacbio/trgt@sha256:8c9f236eb3422e79d7843ffd59e1cbd9b76774525f20d88cd68ca64eb63054eb
-baseCommand: ["/bin/bash", "-c"]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: |
-      set -euo pipefail
-
-      if [ -z "$(inputs.sex)" ]; then
-        echo "Sex is not defined for $(inputs.sample_id). Defaulting to karyotype XX for TRGT."
+      if [ $(inputs.sex) = null ]; then
+        1>&2 echo "Sex is not defined for $(inputs.sample_id). Defaulting to karyotype XX for TRGT."
       fi
-
-      trgt --version
 
       trgt \
         --threads $(inputs.threads) \
-        --karyotype $(inputs.sex ? (inputs.sex == "MALE" ? "XY" : "XX") : "XX") \
+        --karyotype $(inputs.sex == "MALE" ? "XY" : "XX") \
         --genome $(inputs.reference.path) \
         --repeats $(inputs.tandem_repeat_bed.path) \
         --reads $(inputs.bam.path) \
         --output-prefix $(inputs.sample_id).trgt
-
-      bcftools --version
 
       bcftools sort \
         --output-type z \
@@ -43,8 +37,6 @@ arguments:
         --threads ${ return inputs.threads - 1 } \
         --tbi \
         $(inputs.sample_id).trgt.sorted.vcf.gz
-
-      samtools --version
 
       samtools sort \
         -@ ${ return inputs.threads - 1 } \

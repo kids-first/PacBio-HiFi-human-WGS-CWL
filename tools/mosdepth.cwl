@@ -13,17 +13,13 @@ requirements:
     ramMin: $(inputs.ram*1000)
   - class: DockerRequirement
     dockerPull: quay.io/pacbio/mosdepth@sha256:35d5e02facf4f38742e5cae9e5fdd3807c2b431dd8d881fd246b55e6d5f7f600
-baseCommand: ["/bin/bash", "-c"]
+baseCommand: []
 arguments:
   - position: 0
     shellQuote: false
     valueFrom: |
-      set -euo pipefail
-
-      mosdepth --version
-
       mosdepth \
-        --threads ${ return inputs.threads - 1 } \
+        --threads $(inputs.threads) \
         --by 500 \
         --no-per-base \
         --use-median \
