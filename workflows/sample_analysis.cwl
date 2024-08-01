@@ -21,7 +21,7 @@ inputs:
   sample_id: { type: 'string' }
   # references
   reference_fasta: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}] }
-  reference_tandem_repeat_bed: { type: 'File', doc: "human_GRCh38_no_alt_analysis_set.trf.be" }
+  reference_tandem_repeat_bed: { type: 'File', doc: "human_GRCh38_no_alt_analysis_set.trf.bed" }
   trgt_tandem_repeat_bed: { type: 'File', doc: "human_GRCh38_no_alt_analysis_set.trgt.v0.3.4.bed" }
   # pbmm2_align
   bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: false}] }
@@ -115,11 +115,11 @@ outputs:
   hiphase_stats: { type: 'File', outputSource: hiphase/stats_file_out }
   hiphase_blocks: { type: 'File', outputSource: hiphase/blocks_file_out }
   hiphase_haplotags: { type: 'File', outputSource: hiphase/haplotag_file_out }
-  hiphase_bams: { type: 'File', outputSource: hiphase/haplotagged_bam }
+  hiphase_bam: { type: 'File', outputSource: hiphase/haplotagged_bam }
   haplotagged_bam_mosdepth_summary: { type: 'File', outputSource: mosdepth/summary }
   haplotagged_bam_mosdepth_region_bed: { type: 'File', outputSource: mosdepth/region_bed }
   paraphase_output_json: { type: 'File', outputSource: paraphase/output_json }
-  paraphase_realigned_bams: { type: 'File', outputSource: paraphase/realigned_bam }
+  paraphase_realigned_bam: { type: 'File', outputSource: paraphase/realigned_bam }
   paraphase_vcfs: { type: 'File', outputSource: paraphase/paraphase_vcfs }
   # Tandem repeats
   trgt_spanning_reads: { type: 'File', outputSource: trgt/spanning_reads }
