@@ -61,7 +61,7 @@ arguments:
 
 inputs:
   sample_id: { type: 'string' }
-  bam: { type: 'File' }
+  bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: false}] }
   reference: { type: 'File', secondaryFiles: [{pattern: ".fai", required: true}] }
   threads: { type: 'int?', default: 24, doc: "Number of threads to allocate to this task." }
   cpu: { type: 'int?', default: 36, doc: "Number of threads to use" }

@@ -24,7 +24,7 @@ inputs:
   reference_tandem_repeat_bed: { type: 'File', doc: "human_GRCh38_no_alt_analysis_set.trf.be" }
   trgt_tandem_repeat_bed: { type: 'File', doc: "human_GRCh38_no_alt_analysis_set.trgt.v0.3.4.bed" }
   # pbmm2_align
-  bam: { type: 'File' }
+  bam: { type: 'File', secondaryFiles: [{pattern: ".bai", required: false}] }
   pbmm2_threads: { type: 'int?', default: 24, doc: "Number of threads to allocate to this task." }
   pbmm2_cpu: { type: 'int?', default: 36, doc: "Number of threads to use" }
   pbmm2_ram: { type: 'int?', default: 36, doc: "RAM (in GB) to use" }
