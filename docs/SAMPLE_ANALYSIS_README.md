@@ -115,4 +115,4 @@ We processed a 26.5 GB BAM file using the KFDRC PacBio HiFi WGS Variant Workflow
 - [HiFi-human-WGS-WDL](https://github.com/PacificBiosciences/HiFi-human-WGS-WDL)
 - [sample_analysis.wdl](https://github.com/PacificBiosciences/HiFi-human-WGS-WDL/blob/main/workflows/sample_analysis/sample_analysis.wdl)
 - [Dockerfiles](https://github.com/PacificBiosciences/HiFi-human-WGS-WDL/tree/main?tab=readme-ov-file#tool-versions-and-docker-images)
-- [Hg38 reference data bundle](https://zenodo.org/records/8415406)
+- [GRCh38 reference data bundle](https://zenodo.org/records/8415406)
