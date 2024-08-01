@@ -33,7 +33,7 @@ arguments:
         $(inputs.vcf.path) \
       > $(inputs.sample_id).bcftools_roh.out
 
-      echo -e "#chr\\tstart\\tend\\tqual" > $(inputs.sample_id).bcftools_roh.bed
+      echo "#chr\\tstart\\tend\\tqual" > $(inputs.sample_id).bcftools_roh.bed
       awk -v OFS='\t' '$1=="RG" {{ print $3, $4, $5, $8 }}' \
         $(inputs.sample_id).bcftools_roh.out \
       >> $(inputs.sample_id).bcftools_roh.bed

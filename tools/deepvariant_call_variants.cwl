@@ -50,8 +50,10 @@ inputs:
   custom_model: { type: 'File?', secondaryFiles: [{pattern: "^.index", required: true}, {pattern: "^.meta", required: true}], doc: "Custom TensorFlow model checkpoint to use to evaluate candidate variant calls. If not provided, the model trained by the DeepVariant team will be used." }
   model:
     type:
+      - 'null'
       - type: enum
         symbols: ["WGS", "WES", "PACBIO", "HYBRID_PACBIO_ILLUMINA", "ONT_R104"]
+    default: "PACBIO"
     doc: "TensorFlow model checkpoint to use to evaluate candidate variant calls."
   # Resources
   n_shards: { type: 'int?', default: 32 }
