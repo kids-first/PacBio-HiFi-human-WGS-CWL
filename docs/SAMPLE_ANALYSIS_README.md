@@ -33,16 +33,16 @@ The KFDRC PacBio HiFi WGS Variant Workflow performs read alignment, variant call
     - `expected_bed_male`: BED of expected copy number for male karyotype for HiFiCNV (recommended: `expected_cn.hg38.XY.bed`).
 
 - Tandem Repeat
-    Recommended:
+  - Recommended:
     - `reference_tandem_repeat_bed`: Tandem repeat locations used by pbsv to normalize SV representation (recommended: `human_GRCh38_no_alt_analysis_set.trf.bed`).
     - `trgt_tandem_repeat_bed`: Tandem repeat sites to be genotyped by TRGT (recommended: `human_GRCh38_no_alt_analysis_set.trgt.v0.3.4.bed`).
-    Optional:
+  - Optional:
     - `sex`: ["MALE", "FEMALE", null]. If the sex field is missing or null, sex will be set to unknown. Used to set the expected sex chromosome karyotype for TRGT and HiFiCNV (defaults to karyotype XX).
 
 - DeepVariant
-    Recommended:
-    - `model`: TensorFlow model checkpoint to use to evaluate candidate variant calls. Default is set to `PACBIO` for PacBio data. 
-    Optional: 
+  - Recommended:
+    - `model`: TensorFlow model checkpoint to use to evaluate candidate variant calls. Default is set to `PACBIO` for PacBio data.
+  - Optional: 
     - `custom_model`: Alternatively, a custom TensorFlow model checkpoint may be used to evaluate candidate variant calls. If not provided, the `model` trained by the DeepVariant team will be used.
 
 
@@ -105,7 +105,7 @@ tar -xzf wdl-humanwgs.v1.0.2.resource.tgz && mv static_resources PacBio_referenc
 
  ## Estimated Run Times
 
-We processed a 26.5 GB BAM file using the KFDRC PacBio HiFi WGS Variant Workflow with the default settings on the CAVATICA platform. Here are the details of the run:
+We processed a 26.5 GB BAM file using the KFDRC PacBio HiFi WGS Variant Workflow with default settings on CAVATICA. Here are the details of the run:
 - Run Time: 12 hours, 49 minutes
 - Cost: $10.22
 
