@@ -1,22 +1,23 @@
-# KF Bixu Repository Template
+# KFDRC PacBio HiFi WGS Variant Workflow
 
-Use this template to bootstrap a new KF bixu repository 
+<p align="center">
+  <img src="https://github.com/d3b-center/d3b-research-workflows/raw/master/doc/kfdrc-logo-sm.png">
+</p>
 
-### Badges
+This repository contains PacBio HiFi WGS Variant Pipeline used for the Kids First Data Resource Center (DRC).
 
-Update the LICENSE badge to point to the new repo location on GitHub.
-Note that the LICENSE badge will fail to render correctly unless the repo has
-been set to **public**.
+## Workflow
 
-Add additional badges for CI, docs, and other integrations as needed within the
-`<p>` tag next to the LICENSE.
+The HiFi Human WGS Variant Workflow is designed to process PacBio HiFi sequencing data for WGS applications, including read alignment, variant calling, and phasing. This workflow has been converted to CWL from PacBio's [HiFi-human-WGS-WDL](https://github.com/PacificBiosciences/HiFi-human-WGS-WDL) `sample_analysis` workflow.
 
-### Repo Description
+Workflow steps include: 
+- Read alignment
+- Small variant calling
+- Structural variant calling
+- Phasing
+- Coverage analysis
+- CNV calling
 
-Update the repositories description with a short summary of the repository's
-intent.
-Include an appropriate emoji at the start of the summary.
-
-Add a handful of tags that summarize topics relating to the repository.
-If the repo has a documentation site or webpage, add it next to the repository
-description.
+See our documentation for more details: 
+- [Documentation](./docs/SAMPLE_ANALYSIS_README.md)
+- [CWL Workflow](./workflows/sample_analysis.cwl)
